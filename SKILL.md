@@ -3,8 +3,9 @@ name: wewrite
 description: |
   微信公众号内容全流程助手：热点抓取 → 选题 → 框架 → 写作 → SEO/去AI痕迹 → 视觉AI → 排版推送草稿箱。
   触发关键词：公众号、推文、微信文章、微信推文、草稿箱、微信排版、选题、热搜、
-  热点抓取、封面图、配图、写公众号、写一篇。
-  也覆盖：markdown 转微信格式、学习用户改稿风格、文章数据复盘、风格设置。
+  热点抓取、封面图、配图、写公众号、写一篇、主题画廊、排版主题、容器语法。
+  也覆盖：markdown 转微信格式、学习用户改稿风格、文章数据复盘、风格设置、
+  主题预览/切换、:::dialogue/:::timeline/:::callout 容器语法。
   不应被通用的"写文章"、blog、邮件、PPT、抖音/短视频、网站 SEO 触发——
   需要有公众号/微信等明确上下文。
 ---
@@ -188,6 +189,14 @@ python3 {skill_dir}/scripts/seo_keywords.py --json {从热点标题中提取的3
 
 **Playbook 优先**：如果 playbook.md 存在，其中的规则优先于 writing-guide.md 的通用规则。比如 playbook 说"从不用问句结尾"而 writing-guide 建议用反问句，以 playbook 为准。playbook 是用户的个性，writing-guide 是通用底线。
 
+**容器语法**（可选，适合特定内容类型）：写作时可以使用以下容器块，converter 会自动渲染为带样式的 HTML：
+- `:::dialogue` ... `:::` — 对话气泡（适合访谈/问答）
+- `:::timeline` ... `:::` — 时间线（适合历程/步骤）
+- `:::callout tip/warning/info/danger` ... `:::` — 提示框（适合重点/警告）
+- `:::quote` ... `:::` — 拉引语（适合金句展示）
+
+不是每篇文章都需要容器语法——只在内容形式契合时使用。
+
 保存到 `{skill_dir}/output/{date}-{slug}.md`
 
 ---
@@ -282,6 +291,14 @@ python3 {skill_dir}/toolkit/image_gen.py \
 读取: {skill_dir}/references/wechat-constraints.md（排版时参考微信平台限制）
 ```
 
+**Converter 自动处理**（不需要手动干预，了解即可）：
+- 中英文自动加空格（CJK-Latin spacing）
+- 加粗标点外移（微信渲染 bug 修复）
+- `<ul>/<ol>` 转 `<section>`（微信原生列表不稳定）
+- 外链自动转编号脚注 + 文末参考链接（微信屏蔽外链）
+- 暗黑模式 `data-darkmode-*` 属性注入
+- `:::` 容器语法自动渲染
+
 ```bash
 python3 {skill_dir}/toolkit/cli.py publish {markdown_path} \
   --cover {cover_path} \
@@ -344,6 +361,8 @@ python3 {skill_dir}/toolkit/cli.py preview {markdown_path} \
 - "用框架 B 重写" → 回到 Step 4
 - "换一个选题" → 回到 Step 3 展示选题列表
 - "看看文章数据" / "效果怎么样" → 执行效果复盘（见下方）
+- "看看有什么主题" / "换个主题" → 运行 `python3 {skill_dir}/toolkit/cli.py gallery` 打开主题画廊
+- "换成 XX 主题" → 用新主题重新渲染当前文章
 
 ---
 
@@ -374,7 +393,7 @@ python3 {skill_dir}/toolkit/cli.py preview {markdown_path} \
 | 有没有绝对不能出现的词或话题？ | `blacklist` | 空 |
 | 有没有想参考的公众号？ | `reference_accounts` | 空 |
 | 署名写什么？ | `author` | name 字段值 |
-| 偏好哪种排版风格？ | `theme` | "professional-clean" |
+| 偏好哪种排版风格？（可运行 `gallery` 命令预览全部 16 个主题） | `theme` | "professional-clean" |
 | 封面风格偏好？ | `cover_style` | 从 industry 推断 |
 | 有没有固定封面模板？ | `cover_template` | 不设置 |
 
